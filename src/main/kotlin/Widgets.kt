@@ -52,7 +52,6 @@ val exit = JMenuItem("Exit").apply {
 }
 
 val menu = JMenu().apply {
-    icon = scaleIcon("menu_white.svg")
     add(open)
     addSeparator()
     add(save)

@@ -2,12 +2,9 @@ package me.cdh
 
 import com.formdev.flatlaf.FlatLaf
 import com.formdev.flatlaf.extras.FlatAnimatedLafChange
-import com.formdev.flatlaf.extras.FlatSVGIcon
-import com.formdev.flatlaf.extras.FlatSVGIcon.ColorFilter
 import com.formdev.flatlaf.themes.FlatMacDarkLaf
 import com.formdev.flatlaf.themes.FlatMacLightLaf
 import java.awt.BorderLayout
-import java.awt.Color
 import java.awt.EventQueue
 import java.awt.event.ActionEvent
 import java.io.File
@@ -19,40 +16,32 @@ import kotlin.system.exitProcess
 var userSelectedFile: File? = null
 
 fun openListener(e: ActionEvent) {
-    val chooser = JFileChooser()
-    chooser.dialogTitle = "Select File To Open"
-    chooser.fileSelectionMode = JFileChooser.FILES_ONLY
-    if (chooser.showOpenDialog(window) == JFileChooser.APPROVE_OPTION) {
-        if (contentPane.modified) {
-            val dialog = JOptionPane.showConfirmDialog(
-                window,
-                "File is modified, Are you sure to exit without saving?",
-                "Exit without saving",
-                JOptionPane.YES_NO_OPTION
-            )
-            if (dialog == JOptionPane.YES_OPTION) {
-                readFile(chooser)
-            }
-        } else {
-            readFile(chooser)
+    with(JFileChooser()) {
+        dialogTitle = "Select File To Open"
+        fileSelectionMode = JFileChooser.FILES_ONLY
+        if (showOpenDialog(window) == JFileChooser.APPROVE_OPTION) {
+            if (contentPane.modified) {
+                val dialog = JOptionPane.showConfirmDialog(
+                    window,
+                    "File is modified, Are you sure to exit without saving?",
+                    "Exit without saving",
+                    JOptionPane.YES_NO_OPTION
+                )
+                if (dialog == JOptionPane.YES_OPTION) readFile(this)
+            } else readFile(this)
+            contentPane.modified = false
         }
-        contentPane.modified = false
     }
 }
 
 private fun readFile(chooser: JFileChooser) {
-    userSelectedFile = chooser.selectedFile
-    userSelectedFile?.bufferedReader().use {
-        contentPane.text = it?.readText()
-    }
-    window.title = userSelectedFile?.name
+    userSelectedFile = chooser.selectedFile.also { f -> f?.bufferedReader().use { contentPane.text = it?.readText() } }
+        .apply { window.title = this?.name }
 }
 
-fun exitListener(e: ActionEvent) {
-    exitEvent()
-}
+fun exitListener(e: ActionEvent) = exitEvent()
 
-internal fun exitEvent() {
+fun exitEvent() {
     if (contentPane.modified) {
         val dialog = JOptionPane.showConfirmDialog(
             window,
@@ -88,25 +77,32 @@ fun saveAsListener(e: ActionEvent) {
     contentPane.modified = false
 }
 
-fun lightThemeListener(e: ActionEvent) {
-    EventQueue.invokeLater {
-        FlatAnimatedLafChange.showSnapshot()
-        FlatMacLightLaf.setup()
-        FlatLaf.updateUI()
-        FlatAnimatedLafChange.hideSnapshotWithAnimation()
-        menu.icon = scaleIcon("menu_black.svg")
-    }
-}
+fun lightThemeListener(e: ActionEvent): Unit =
+    changeTheme("FlatMacLightLaf")
 
-fun darkThemeListener(e: ActionEvent) {
-    EventQueue.invokeLater {
-        FlatAnimatedLafChange.showSnapshot()
-        FlatMacDarkLaf.setup()
-        FlatLaf.updateUI()
-        FlatAnimatedLafChange.hideSnapshotWithAnimation()
-        menu.icon = scaleIcon("menu_white.svg")
+fun darkThemeListener(e: ActionEvent): Unit =
+    changeTheme("FlatMacDarkLaf")
+
+fun changeTheme(theme: String) =
+    when (theme) {
+        "FlatMacDarkLaf" -> EventQueue.invokeLater {
+            FlatAnimatedLafChange.showSnapshot()
+            FlatMacDarkLaf.setup()
+            FlatLaf.updateUI()
+            FlatAnimatedLafChange.hideSnapshotWithAnimation()
+            menu.icon = scaleIcon("menu_white.svg")
+        }
+
+        "FlatMacLightLaf" -> EventQueue.invokeLater {
+            FlatAnimatedLafChange.showSnapshot()
+            FlatMacLightLaf.setup()
+            FlatLaf.updateUI()
+            FlatAnimatedLafChange.hideSnapshotWithAnimation()
+            menu.icon = scaleIcon("menu_black.svg")
+        }
+
+        else -> throw UnsupportedLookAndFeelException("Unknown theme")
     }
-}
 
 fun labelPopup() {
     val label = JLabel("Save")

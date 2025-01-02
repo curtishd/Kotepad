@@ -22,19 +22,35 @@ tasks.test {
 kotlin {
     jvmToolchain(21)
 }
-tasks{
-    compileJava{
+tasks {
+    compileJava {
         dependsOn(compileKotlin)
-        doFirst{
-            options.compilerArgs= listOf(
-                "--module-path",classpath.asPath
+        doFirst {
+            options.compilerArgs = listOf(
+                "--module-path", classpath.asPath
             )
         }
     }
     compileKotlin {
         destinationDirectory.set(compileJava.get().destinationDirectory)
     }
-    jar{
-        duplicatesStrategy=DuplicatesStrategy.EXCLUDE
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
+}
+tasks.jar {
+    manifest {
+        attributes(
+            mapOf("Main-Class" to "me.cdh.Main")
+        )
+    }
+    from(configurations.runtimeClasspath.get().map {
+        if (it.isDirectory) it else zipTree(it)
+    })
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+task("copyDependencies", Copy::class) {
+    configurations.compileClasspath.get()
+        .filter { it.extension == "jar" }
+        .forEach { from(it.absolutePath).into("${layout.buildDirectory.get()}/libs") }
 }
