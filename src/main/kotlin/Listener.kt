@@ -50,8 +50,7 @@ fun exitEvent() {
             JOptionPane.YES_NO_OPTION
         )
         if (dialog == JOptionPane.YES_OPTION) exitProcess(0)
-    } else
-        exitProcess(0)
+    } else exitProcess(0)
 }
 
 fun saveListener(e: ActionEvent) {
@@ -77,32 +76,35 @@ fun saveAsListener(e: ActionEvent) {
     contentPane.modified = false
 }
 
-fun lightThemeListener(e: ActionEvent): Unit =
+fun lightThemeListener(e: ActionEvent) {
     changeTheme("FlatMacLightLaf")
+    File(userFavour).bufferedWriter().use { it.write("user.settings=FlatMacLightLaf") }
+}
 
-fun darkThemeListener(e: ActionEvent): Unit =
+fun darkThemeListener(e: ActionEvent) {
     changeTheme("FlatMacDarkLaf")
+    File(userFavour).bufferedWriter().use { it.write("user.settings=FlatMacDarkLaf") }
+}
 
-fun changeTheme(theme: String) =
-    when (theme) {
-        "FlatMacDarkLaf" -> EventQueue.invokeLater {
-            FlatAnimatedLafChange.showSnapshot()
-            FlatMacDarkLaf.setup()
-            FlatLaf.updateUI()
-            FlatAnimatedLafChange.hideSnapshotWithAnimation()
-            menu.icon = scaleIcon("menu_white.svg")
-        }
-
-        "FlatMacLightLaf" -> EventQueue.invokeLater {
-            FlatAnimatedLafChange.showSnapshot()
-            FlatMacLightLaf.setup()
-            FlatLaf.updateUI()
-            FlatAnimatedLafChange.hideSnapshotWithAnimation()
-            menu.icon = scaleIcon("menu_black.svg")
-        }
-
-        else -> throw UnsupportedLookAndFeelException("Unknown theme")
+fun changeTheme(theme: String) = when (theme) {
+    "FlatMacDarkLaf" -> EventQueue.invokeLater {
+        FlatAnimatedLafChange.showSnapshot()
+        FlatMacDarkLaf.setup()
+        FlatLaf.updateUI()
+        FlatAnimatedLafChange.hideSnapshotWithAnimation()
+        menu.icon = scaleIcon("menu_white.svg")
     }
+
+    "FlatMacLightLaf" -> EventQueue.invokeLater {
+        FlatAnimatedLafChange.showSnapshot()
+        FlatMacLightLaf.setup()
+        FlatLaf.updateUI()
+        FlatAnimatedLafChange.hideSnapshotWithAnimation()
+        menu.icon = scaleIcon("menu_black.svg")
+    }
+
+    else -> throw UnsupportedLookAndFeelException("Unknown theme")
+}
 
 fun labelPopup() {
     val label = JLabel("Save")

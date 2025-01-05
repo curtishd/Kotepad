@@ -8,12 +8,26 @@ import javax.swing.SwingUtilities
 object Main {
     @JvmStatic
     fun main(args: Array<String>) {
-        if (isDayTime()) {
-            FlatMacLightLaf.setup()
-            menu.icon = scaleIcon("menu_black.svg")
-        } else {
-            FlatMacDarkLaf.setup()
-            menu.icon = scaleIcon("menu_white.svg")
+        File(userFavour).run {
+            if (!exists() || length() == 0L) {
+                createNewFile()
+                FlatMacDarkLaf.setup()
+                menu.icon = scaleIcon("menu_white.svg")
+            } else bufferedReader().use {
+                it.readLine().split("=")[1].run {
+                    when (this) {
+                        "FlatMacDarkLaf" -> {
+                            FlatMacDarkLaf.setup()
+                            menu.icon = scaleIcon("menu_white.svg")
+                        }
+
+                        else -> {
+                            FlatMacLightLaf.setup()
+                            menu.icon = scaleIcon("menu_black.svg")
+                        }
+                    }
+                }
+            }
         }
         SwingUtilities.invokeLater {
             window.isVisible = true

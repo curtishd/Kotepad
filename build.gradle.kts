@@ -13,7 +13,6 @@ dependencies {
     implementation("com.github.weisj:jsvg:1.4.0")
     implementation("com.formdev:flatlaf-extras:3.5.4")
     implementation("com.formdev:flatlaf:3.5.4")
-    testImplementation(kotlin("test"))
 }
 
 tasks.test {
